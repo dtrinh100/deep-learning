@@ -1,8 +1,11 @@
+# Tells Make these are commands, not files
+.PHONY: run up stop down lint format check-all train
+
 run: stop up
 
 up:
 	docker compose -f docker-compose.yml up --build
-	
+    
 stop:
 	docker compose -f docker-compose.yml stop
 
@@ -18,3 +21,6 @@ format:
 check-all:
 	uvx ruff check .
 	uvx ruff format --check .
+
+train:
+	cd app && uv run python train.py
