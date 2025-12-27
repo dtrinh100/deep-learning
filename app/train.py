@@ -3,6 +3,7 @@ import os
 import lightning as L
 import timm
 import torch
+from pydantic import PositiveInt
 from torch.utils.data import DataLoader
 from torchvision import datasets
 from torchvision.transforms import v2
@@ -11,7 +12,8 @@ from torchvision.transforms import v2
 class ImageClassifier(L.LightningModule):
     """For this demo, I am using a small base model since I won't be using 
     a lot of images"""
-    def __init__(self, model_name="mobilenetv3_small_100", num_classes=2):
+    def __init__(self, model_name: str ="mobilenetv3_small_100", 
+                 num_classes: PositiveInt = 2):
         super().__init__()
         self.model = timm.create_model(model_name, pretrained=True, 
                                        num_classes=num_classes)
@@ -25,7 +27,7 @@ class ImageClassifier(L.LightningModule):
         
         self.loss_fn = torch.nn.CrossEntropyLoss()
 
-    def training_step(self, batch, _):
+    def training_step(self, batch: tuple[torch.Tensor, torch.Tensor], _) -> torch.Tensor:
         x, y = batch
         preds = self.model(x)
         loss = self.loss_fn(preds, y)
@@ -33,7 +35,7 @@ class ImageClassifier(L.LightningModule):
         self.log("train_loss", loss)
         return loss
 
-    def configure_optimizers(self):
+    def configure_optimizers(self) -> torch.optim.Optimizer:
         return torch.optim.AdamW(self.parameters(), lr=1e-3)
     
 
